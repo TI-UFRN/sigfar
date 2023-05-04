@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <locale>
 #include "../print.hpp"
+#include "../../entities/cart.hpp"
 
 void printPresentation()
 {
@@ -138,9 +139,14 @@ void printSupportMenu(std::string type)
         std::cout << "\033[1;33m> search [string]______________Pesquisar medicamento pelo nome\033[1;33m" << std::endl
                   << std::endl;
     }
+    if(type == "cart") {
+        std::cout << "\033[1;33m> remove [id]___________________Remove medicamento do carrinho\033[1;33m" << std::endl;
+        std::cout << "\033[1;33m> Comprar__________________Comprar os medicamentos do carrinho\033[1;33m" << std::endl << std::endl;
+    }
 }
 
-void printStorageSearch(std::vector<Medicine *> storage, std::string filter) {
+void printStorageSearch(std::vector<Medicine *> storage, std::string filter)
+{
     std::cout << "\033[1;33m______________________________________________________________\033[1;33m" << std::endl;
     std::cout << "\033[1;33m                         Medicamentos                         \033[1;33m" << std::endl;
     std::cout << "\033[1;33m______________________________________________________________\033[1;33m" << std::endl;
@@ -148,7 +154,8 @@ void printStorageSearch(std::vector<Medicine *> storage, std::string filter) {
     std::cout << "\033[1;33m______________________________________________________________\033[1;33m" << std::endl;
     for (int i = 0; i < storage.size(); i++)
     {
-        if(storage[i]->getName().find(filter) == std::string::npos) continue;
+        if (storage[i]->getName().find(filter) == std::string::npos)
+            continue;
         std::string nome(storage[i]->getName());
         std::ostringstream streamId;
         streamId << i + 1;
@@ -195,4 +202,71 @@ void printStorageSearch(std::vector<Medicine *> storage, std::string filter) {
     std::cout << "\033[1;33m______________________________________________________________\033[1;33m" << std::endl;
 }
 
-void printCart()
+void printCart(Cart cart)
+{
+    std::cout << "\033[1;33m______________________________________________________________\033[1;33m" << std::endl;
+    std::cout << "\033[1;33m                         Seu carrinho                         \033[1;33m" << std::endl;
+    std::cout << "\033[1;33m______________________________________________________________\033[1;33m" << std::endl;
+    std::cout << "\033[1;33mIdentificador                       |  Preço unit |  Quant   \033[1;33m" << std::endl;
+
+    for (int i = 0; i < cart.getSize(); i++)
+    {
+        std::string nome(cart.getMedicines()[i]->getName());
+        std::ostringstream streamId;
+        streamId << i + 1;
+        nome = streamId.str() + " - " + nome;
+        int nNomeSpaces = 36 - nome.size();
+
+        std::string spacesName("");
+        for (int i = 1; i <= nNomeSpaces; i++, spacesName += " ")
+            ;
+
+        std::string value("R$");
+        std::ostringstream streamValue;
+        std::locale loc("pt_BR.utf8");
+        streamValue.imbue(loc);
+        streamValue << std::fixed << std::setprecision(2) << cart.getMedicines()[i]->getValue();
+        std::string valorString = streamValue.str();
+
+        value += valorString;
+        std::string spaceValue("");
+        for (int i = 1; i <= (14 - value.size()) / 2; i++, spaceValue += " ")
+            ;
+        value = spaceValue + value;
+        spaceValue = "";
+
+        int nSpaceAfter = (15 - value.size()) / 2;
+        if ((15 - value.size()) % 2 != 0)
+        {
+            nSpaceAfter++;
+        }
+        for (int i = 1; i <= nSpaceAfter; i++, spaceValue += " ")
+            ;
+
+        value = value + spaceValue;
+
+        std::ostringstream streamAmmount;
+        streamAmmount.imbue(loc);
+        streamAmmount << cart.getMedicines()[i]->getAmmount();
+        std::string ammountStr = streamAmmount.str();
+        ammountStr += " unid";
+
+        std::cout << "\033[1;33m" + nome + spacesName + "|" + value + "| " + ammountStr + "\033[1;33m" << std::endl;
+    }
+
+    std::ostringstream streamTotal;
+    std::locale loc("pt_BR.utf8");
+    streamTotal.imbue(loc);
+    streamTotal << std::fixed << std::setprecision(2) << cart.getTotal();
+    std::string totalString = "Total: R$" + streamTotal.str();
+
+    std::string spacesTotal("");
+    int quantSpacesTotal = 62 - totalString.size();
+
+    for (int i = 1; i <= quantSpacesTotal; i++)
+    {
+        spacesTotal += " ";
+    }
+    std::cout << "\033[1;33m" + spacesTotal + totalString + "\033[1;33m" << std::endl;
+    std::cout << "\033[1;33m______________________________________________________________\033[1;33m" << std::endl;
+}

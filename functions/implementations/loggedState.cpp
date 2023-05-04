@@ -16,6 +16,7 @@ void loginState(User *user, std::vector<Medicine *> storage)
 {
     Cart cart;
     std::string messageError("");
+    char choiceBefore = ' ';
     while (true)
     {
         printPresentation();
@@ -28,13 +29,62 @@ void loginState(User *user, std::vector<Medicine *> storage)
         }
 
         char choice;
-        std::cout << "\033[1;37m> \033[1;37m";
-        std::cin >> choice;
-        std::cin.ignore();
+        if (choiceBefore == ' ')
+        {
+            std::cout << "\033[1;37m> \033[1;37m";
+            std::cin >> choice;
+            std::cin.ignore();
+        }
+        else
+        {
+            choice = choiceBefore;
+            choiceBefore = ' ';
+        }
 
         if (choice == '*')
         {
             return;
+        }
+        else if (choice == '#')
+        {
+            messageError = "";
+            std::string messageErrorChoiceCart("");
+            while (true)
+            {
+                printPresentation();
+                printUserNav(user);
+                printCart(cart);
+                printSupportMenu("cart");
+                if (messageErrorChoiceCart != "")
+                {
+                    printMessageError(messageErrorChoiceCart);
+                }
+                std::string choice2;
+                std::cout << "\033[1;37m> \033[1;37m";
+                std::getline(std::cin, choice2);
+
+                if (choice2[0] == '*')
+                {
+                    messageErrorChoiceCart = "";
+                    break;
+                }
+                else if (choice2.substr(0, 6) == "remove")
+                {
+                    std::vector<std::string> command = split(choice2, ' ');
+                    int index = std::stoi(command[1]) - 1;
+                    if (index >= cart.getSize())
+                    {
+                        messageErrorChoiceCart = "Medicamento inexistente";
+                    }
+                    else
+                    {
+                        cart.removeMedicine(index);
+                    }
+                }
+                else if (choice2.substr(0, 7) == "comprar")
+                {
+                }
+            }
         }
         else if (choice == '1')
         {
@@ -61,6 +111,8 @@ void loginState(User *user, std::vector<Medicine *> storage)
                 else if (choice2[0] == '#')
                 {
                     messageErrorChoice1 = "";
+                    choiceBefore = '#';
+                    break;
                 }
                 else if (choice2[0] == '@')
                 {
